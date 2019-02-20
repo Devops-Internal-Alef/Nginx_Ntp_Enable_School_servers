@@ -1,0 +1,23 @@
+---
+- name: Enable services in School hosts
+  hosts: all
+  gather_facts: no
+
+  tasks:
+  - name: Enable and Ensure Nginx and Ntpd Services are started
+    systemd:
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+    with_items:
+      - nginx
+      - ntpd
+
+  - name: Ensure sshpass is installed on content servers
+    yum:
+      name: sshpass
+      state: installed
+  
+  - name: Ensure nginx and ntpd service on Proxy nodes
+    shell: sshpass -p "{{ proxy_pass }}" ssh root@"{{ proxy_ip }}" "systemctl enable nginx ntpd"
+    changed_when: False
